@@ -1,0 +1,1 @@
+classpath*:com/github/ewoij/openminted/components/leica_model_annotator/LeicaModelAnnotatorTypeSystem.xml

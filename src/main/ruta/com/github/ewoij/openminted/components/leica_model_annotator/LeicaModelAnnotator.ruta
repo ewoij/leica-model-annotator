@@ -1,0 +1,40 @@
+PACKAGE com.github.ewoij.openminted.components.leica_model_annotator;
+
+DECLARE LeicaAnnotation;
+DECLARE LeicaAnnotation LeicaText;
+DECLARE LeicaAnnotation LeicaRange;
+DECLARE LeicaAnnotation UppercaseWord;
+DECLARE LeicaAnnotation LeicaModel;
+
+STRINGLIST false_positive_blacklist = {"UK", "USA"};
+
+// annotate 'Leica'
+W{REGEXP("leica", true) -> LeicaText};
+
+// annotate range on right of leica
+a:LeicaText r:ANY*{(r.end - a.end) < 30 -> MARKONCE(LeicaRange, 2)};
+l:ANY*{(a.begin - l.begin) < 13 -> MARKONCE(LeicaRange)} a:@LeicaText;
+
+// annotate models within range
+LeicaRange -> {
+	// annotate UPPERCASE WORD
+	W{REGEXP("[A-Z]+") -> UppercaseWord};
+	
+	// annotate models
+    UppercaseWord{-> MARK(LeicaModel, 1, 2)} (NUM|UppercaseWord)*;
+    
+    // append -SOMETHING
+    LeicaModel{-> MARK(LeicaModel, 1, 3)} "-" (NUM|UppercaseWord)+;
+    
+    // remove model in black list
+    LeicaModel{INLIST(false_positive_blacklist) -> UNMARK(LeicaModel)};
+    
+    // remove overlap
+    LeicaModel{PARTOFNEQ(LeicaModel) -> UNMARK(LeicaModel)};
+    
+    // remove annotations smaller than 2 characters
+    a:LeicaModel{(a.end - a.begin) < 2 -> UNMARK(LeicaModel)};
+};
+
+// cleanup annotations
+LeicaAnnotation{-> UNMARKALL(LeicaAnnotation, {LeicaModel})};
