@@ -17,21 +17,21 @@ l:ANY*{(a.begin - l.begin) < 13 -> MARKONCE(LeicaRange)} a:@LeicaText;
 
 // annotate models within range
 LeicaRange -> {
-	// annotate UPPERCASE WORD
-	W{REGEXP("[A-Z]+") -> UppercaseWord};
-	
-	// annotate models
+    // annotate UPPERCASE WORD
+    W{REGEXP("[A-Z]+") -> UppercaseWord};
+
+    // annotate models
     UppercaseWord{-> MARK(LeicaModel, 1, 2)} (NUM|UppercaseWord)*;
-    
+
     // append -SOMETHING
     LeicaModel{-> MARK(LeicaModel, 1, 3)} "-" (NUM|UppercaseWord)+;
-    
+
     // remove model in black list
     LeicaModel{INLIST(false_positive_blacklist) -> UNMARK(LeicaModel)};
-    
+
     // remove overlap
     LeicaModel{PARTOFNEQ(LeicaModel) -> UNMARK(LeicaModel)};
-    
+
     // remove annotations smaller than 2 characters
     a:LeicaModel{(a.end - a.begin) < 2 -> UNMARK(LeicaModel)};
 };
