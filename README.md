@@ -8,3 +8,7 @@ Annotation examples:
 
 Annotation type:
  - com.github.ewoij.openminted.components.leica_model_annotator.LeicaModelAnnotator.LeicaModel
+
+Accuracy:
+ - Precision: 0.811
+ - Recall: 0.909
